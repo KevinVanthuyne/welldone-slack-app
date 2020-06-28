@@ -40,6 +40,9 @@ def _handle_message(payload):
     if not MessageService.has_valid_channel_type(message):
         return
 
+    if not MessageService.contains_keyword(message):
+        return
+
     LOGGER.debug(message)
 
 
