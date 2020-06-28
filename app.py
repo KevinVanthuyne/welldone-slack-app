@@ -6,6 +6,8 @@ from slackeventsapi import SlackEventAdapter
 from dotenv import load_dotenv
 import pprint
 
+from model.message import Message
+
 LOGGER = logging.getLogger()
 
 # Load environment variables from .env file
@@ -32,16 +34,12 @@ def _handle_message(payload):
     pp.pprint(payload)
 
     event = payload["event"]
-    channel_type = event["channel_type"]
-    text = event["text"]
-    user = event["user"]
+    message = Message(event["channel_type"], event["user"], event["text"])
 
-    if not (channel_type == "channel" or channel_type == "group"):
+    if not (message.channel_type == "channel" or message.channel_type == "group"):
         return
 
-    LOGGER.debug(channel_type)
-    LOGGER.debug(text)
-    LOGGER.debug(user)
+    LOGGER.debug(message)
 
 
 if __name__ == "__main__":
