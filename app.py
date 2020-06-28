@@ -35,7 +35,8 @@ def _handle_message(payload):
     pp.pprint(payload)
 
     event = payload["event"]
-    message = Message(event["channel_type"], event["user"], event["text"])
+    message = Message(event["channel_type"], event["user"],
+                      event["text"], event["blocks"])
 
     if not MessageService.has_valid_channel_type(message):
         return
@@ -44,6 +45,7 @@ def _handle_message(payload):
         return
 
     LOGGER.debug(message)
+    LOGGER.debug(MessageService.get_tagged_users(message))
 
 
 if __name__ == "__main__":

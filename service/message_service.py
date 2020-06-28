@@ -17,3 +17,14 @@ class MessageService():
             rewarding a user 
         """
         return MessageService.KEYWORD in message.content
+
+    @staticmethod
+    def get_tagged_users(message: Message):
+        """ Get the user id's from all tagged users in the message with the 
+            duplicate user id's removed 
+        """
+        user_ids = []
+        for element in message.blocks[0]["elements"][0]["elements"]:
+            if element["type"] == "user":
+                user_ids.append(element["user_id"])
+        return list(dict.fromkeys(user_ids))
