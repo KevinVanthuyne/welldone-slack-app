@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 import pprint
 
 from model.message import Message
+from service.message_service import MessageService
 
 LOGGER = logging.getLogger()
 
@@ -36,7 +37,7 @@ def _handle_message(payload):
     event = payload["event"]
     message = Message(event["channel_type"], event["user"], event["text"])
 
-    if not (message.channel_type == "channel" or message.channel_type == "group"):
+    if not MessageService.has_valid_channel_type(message):
         return
 
     LOGGER.debug(message)
