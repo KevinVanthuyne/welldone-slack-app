@@ -5,12 +5,13 @@ from slack import WebClient
 from slackeventsapi import SlackEventAdapter
 from dotenv import load_dotenv
 
+# Load environment variables from .env file
+load_dotenv()
+
 # Initialize a Flask app to host the events adapter
 app = Flask(__name__)
 slack_events_adapter = SlackEventAdapter(
-    os.getenv('SLACK_SIGNING_SECRET'),
-    "/{}/slack/events".format(os.getenv('SLACK_EVENT_ADAPTER_URL')),
-    app
+    os.getenv('SLACK_SIGNING_SECRET'), "/slack/events", app
 )
 
 # Initialize a Web API client
@@ -46,12 +47,5 @@ if __name__ == "__main__":
     logger.setLevel(logging.DEBUG)
     logger.addHandler(logging.StreamHandler())
 
-    logging.info("Starting app...")
-
-    # Load environment variables from .env file
-    load_dotenv()
-
     # Run Flask app
     app.run(port=3000)
-
-    logging.info("App is running!")
