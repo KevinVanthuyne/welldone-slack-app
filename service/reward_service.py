@@ -1,4 +1,5 @@
 from model.reward import Reward
+from dao.reward_dao import RewardDao
 
 
 class RewardService():
@@ -6,9 +7,8 @@ class RewardService():
 
     def __init__(self, logger):
         self.logger = logger
-        self.rewards = []
+        self.reward_dao = RewardDao()
 
     def give_reward(self, reward: Reward):
         """ Checks if the reward is valid and stores it internally """
-        self.rewards.append(reward)
-        self.logger.info("Saved reward: {}".format(reward))
+        self.reward_dao.save(reward)
