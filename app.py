@@ -3,9 +3,12 @@ import logging
 from flask import Flask
 from slackeventsapi import SlackEventAdapter
 from dotenv import load_dotenv
+from datetime import datetime
 
 from model.message import Message
+from model.reward import Reward
 from service.message_service import MessageService
+from service.reward_service import RewardService
 
 LOGGER = logging.getLogger()
 
@@ -18,8 +21,9 @@ slack_events_adapter = SlackEventAdapter(
     os.getenv('SLACK_SIGNING_SECRET'), "/slack/events", app
 )
 
-# Initialize a MessageService
+# Initialize the services
 message_service = MessageService(LOGGER)
+reward_service = RewardService(LOGGER)
 
 
 @slack_events_adapter.on("message")
@@ -39,8 +43,10 @@ def _handle_message(payload):
         return
 
     tagged_users = message_service.get_tagged_users(message)
-    success = message_service.send_reward_notifications(
-        message.user, tagged_users
+    reward = Reward(message.user, tagged_users[0], datetime.now())
+    reward_service.give_reward(reward)
+    success = message_service.send_reward_notification(
+        message.user, tagged_users[0]
     )
 
     LOGGER.debug(success)
