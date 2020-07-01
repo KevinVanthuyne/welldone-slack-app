@@ -4,6 +4,8 @@ Slack app for rewarding people with bacon as a way of saying thanks.
 ## Setup
 Run `pip3 install -r requirements.txt` to install all dependencies.
 
+Rename `.env-example` to `.env` and fill in all variables.
+
 Run `python3 app.py` to start the Flask server that gets called by Slack when new messages are posted.
 
 ### Local setup 
