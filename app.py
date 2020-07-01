@@ -10,7 +10,9 @@ from model.reward import Reward
 from service.message_service import MessageService
 from service.reward_service import RewardService
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.getLogger()
+LOGGER.setLevel(logging.INFO)
+LOGGER.addHandler(logging.StreamHandler())
 
 # Load environment variables from .env file
 load_dotenv()
@@ -44,12 +46,12 @@ def _handle_message(payload):
 
     tagged_users = message_service.get_tagged_users(message)
     reward = Reward(message.user, tagged_users[0], datetime.now())
-    reward_service.give_reward(reward)
-    success = message_service.send_reward_notification(
-        message.user, tagged_users[0]
-    )
 
-    LOGGER.info(success)
+    if (reward_service.give_reward(reward)):
+        success = message_service.send_reward_notification(
+            message.user, tagged_users[0]
+        )
+        LOGGER.info(success)
 
 
 if __name__ == "__main__":

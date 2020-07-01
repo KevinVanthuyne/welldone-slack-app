@@ -13,4 +13,4 @@ class RewardService():
 
     def give_reward(self, reward: Reward):
         """ Checks if the reward is valid and stores it internally """
-        self.reward_dao.save(reward)
+        return self.reward_dao.save(reward)

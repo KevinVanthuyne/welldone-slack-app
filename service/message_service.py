@@ -13,7 +13,6 @@ class MessageService():
 
     def __init__(self):
         """ Initializes the MessageService with logger and a Slack WebClient """
-        print("TOKEN: " + os.getenv('SLACK_BOT_TOKEN'))
         self.logger = logging.getLogger(__name__)
         self.slack_web_client = WebClient(token=os.getenv('SLACK_BOT_TOKEN'))
 
@@ -75,6 +74,10 @@ class MessageService():
 
             leave_response = self.slack_web_client.conversations_close(
                 channel=channel_id
+            )
+            self.logger.info(
+                "Sent a reward notification from {} to {}".format(
+                    sender, receiver)
             )
 
             return True
