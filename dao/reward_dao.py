@@ -9,17 +9,9 @@ class RewardDao():
     """ Data access class for managing storage of Rewards """
 
     def __init__(self):
-        self.logger = logging.getLogger()
-
-    def _create_connection(self):
-        """ Tries to open a connection to the database and returns the
-            connection object. Warning: it does not close the connection,
-            this has to be done manually
-        """
-        try:
-            return sqlite3.connect('test.db')
-        except Error as e:
-            self.logger.error("Couldn't connect to database: {}".format(e))
+        self.logger = logging.getLogger(__name__)
+        # TODO: create database if there isn't one yet
+        self._create_database()
 
     def save(self, reward: Reward):
         """ Saves the reward to the database """
@@ -33,3 +25,17 @@ class RewardDao():
                     "Reward {} added to database".format(cursor.lastrowid))
         except Error as e:
             self.logger.error("Couldn't save reward to database: {}".format(e))
+
+    def _create_database(self):
+        """ Create the database and its tables to be able to use it """
+        pass
+
+    def _create_connection(self):
+        """ Tries to open a connection to the database and returns the
+            connection object. Warning: it does not close the connection,
+            this has to be done manually
+        """
+        try:
+            return sqlite3.connect('test.db')
+        except Error as e:
+            self.logger.error("Couldn't connect to database: {}".format(e))

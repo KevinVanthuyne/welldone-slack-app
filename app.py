@@ -10,7 +10,7 @@ from model.reward import Reward
 from service.message_service import MessageService
 from service.reward_service import RewardService
 
-LOGGER = logging.getLogger()
+LOGGER = logging.getLogger(__name__)
 
 # Load environment variables from .env file
 load_dotenv()
@@ -22,8 +22,8 @@ slack_events_adapter = SlackEventAdapter(
 )
 
 # Initialize the services
-message_service = MessageService(LOGGER)
-reward_service = RewardService(LOGGER)
+message_service = MessageService()
+reward_service = RewardService()
 
 
 @slack_events_adapter.on("message")
@@ -49,13 +49,9 @@ def _handle_message(payload):
         message.user, tagged_users[0]
     )
 
-    LOGGER.debug(success)
+    LOGGER.info(success)
 
 
 if __name__ == "__main__":
-    # Setup logger
-    LOGGER.setLevel(logging.DEBUG)
-    LOGGER.addHandler(logging.StreamHandler())
-
     # Run Flask app
     app.run(port=3000)

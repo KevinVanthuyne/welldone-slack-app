@@ -1,4 +1,5 @@
 import os
+import logging
 from slack import WebClient
 from slack.errors import SlackApiError
 
@@ -10,10 +11,10 @@ class MessageService():
 
     KEYWORD = ":bacon:"
 
-    def __init__(self, logger):
+    def __init__(self):
         """ Initializes the MessageService with logger and a Slack WebClient """
         print("TOKEN: " + os.getenv('SLACK_BOT_TOKEN'))
-        self.logger = logger
+        self.logger = logging.getLogger(__name__)
         self.slack_web_client = WebClient(token=os.getenv('SLACK_BOT_TOKEN'))
 
     def has_valid_channel_type(self, message: Message):
