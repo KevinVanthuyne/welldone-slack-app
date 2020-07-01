@@ -51,7 +51,6 @@ def _handle_message(payload):
         success = message_service.send_reward_notification(
             message.user, tagged_users[0]
         )
-        LOGGER.info(success)
 
 
 if __name__ == "__main__":

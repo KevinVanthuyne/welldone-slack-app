@@ -14,7 +14,7 @@ class RewardDao():
     TABLE_EXISTS_QUERY = """SELECT name FROM sqlite_master 
                             WHERE type='table' AND name='{}';"""
     CREATE_REWARD_TABLE_QUERY = """CREATE TABLE IF NOT EXISTS rewards (
-                                        id          INT         PRIMARY KEY,
+                                        id          INTEGER     PRIMARY KEY,
                                         sender      VARCHAR(32) NOT NULL,
                                         receiver    VARCHAR(32) NOT NULL,
                                         timestamp   TIMESTAMP   NOT NULL
@@ -29,10 +29,11 @@ class RewardDao():
         try:
             with self._create_connection() as connection:
                 cursor = connection.cursor()
-                cursor.execute(self.INSERT_REWARD_QUERY, reward)
-                # connection.commit()
+                cursor.execute(self.INSERT_REWARD_QUERY,
+                               (reward.sender, reward.receiver, reward.timestamp))
+                connection.commit()
                 self.logger.info(
-                    "Reward {} added to database".format(cursor.lastrowid))
+                    "Reward added to database: id:{} {}".format(cursor.lastrowid, reward))
                 return True
         except Error as e:
             self.logger.error("Couldn't save reward to database: {}".format(e))
@@ -45,6 +46,7 @@ class RewardDao():
         try:
             with self._create_connection() as connection:
                 if not self._table_exists("rewards"):
+                    self.logger.info("Couldn't find a database")
                     cursor = connection.cursor()
                     cursor.execute(self.CREATE_REWARD_TABLE_QUERY)
                     self.logger.info("Database created")
