@@ -3,22 +3,13 @@ from sqlite3 import Error
 import logging
 
 from model.reward import Reward
+from dao.queries import Queries
 
 
 class RewardDao():
     """ Data access class for managing storage of Rewards """
 
     DATABASE_NAME = "welldone_database.db"
-    INSERT_REWARD_QUERY = """INSERT INTO rewards (sender, receiver, timestamp)
-                             VALUES (?, ?, ?);"""
-    TABLE_EXISTS_QUERY = """SELECT name FROM sqlite_master 
-                            WHERE type='table' AND name='{}';"""
-    CREATE_REWARD_TABLE_QUERY = """CREATE TABLE IF NOT EXISTS rewards (
-                                        id          INTEGER     PRIMARY KEY,
-                                        sender      VARCHAR(32) NOT NULL,
-                                        receiver    VARCHAR(32) NOT NULL,
-                                        timestamp   TIMESTAMP   NOT NULL
-                                    );"""
 
     def __init__(self):
         self.logger = logging.getLogger()
@@ -29,7 +20,7 @@ class RewardDao():
         try:
             with self._create_connection() as connection:
                 cursor = connection.cursor()
-                cursor.execute(self.INSERT_REWARD_QUERY,
+                cursor.execute(Queries.INSERT_REWARD,
                                (reward.sender, reward.receiver, reward.timestamp))
                 connection.commit()
                 self.logger.info(
@@ -38,6 +29,9 @@ class RewardDao():
         except Error as e:
             self.logger.error("Couldn't save reward to database: {}".format(e))
             return False
+
+    def todays_given_rewards_count(self, user_id: str):
+        """ Counts how many rewards the user has given today """
 
     def _create_database(self):
         """ Create the database if there is none and its tables to be able to 
@@ -48,7 +42,7 @@ class RewardDao():
                 if not self._table_exists("rewards"):
                     self.logger.info("Couldn't find a database")
                     cursor = connection.cursor()
-                    cursor.execute(self.CREATE_REWARD_TABLE_QUERY)
+                    cursor.execute(Queries.CREATE_REWARD_TABLE)
                     self.logger.info("Database created")
                 else:
                     self.logger.info("Database detected")
@@ -62,7 +56,7 @@ class RewardDao():
             with self._create_connection() as connection:
                 cursor = connection.cursor()
                 # Table names can't be parameterized so .format() is used
-                cursor.execute(self.TABLE_EXISTS_QUERY.format(table_name))
+                cursor.execute(Queries.TABLE_EXISTS.format(table_name))
                 if cursor.fetchone():
                     return True
         except Error as e:
