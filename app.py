@@ -9,6 +9,7 @@ from model.message import Message
 from model.reward import Reward
 from service.message_service import MessageService
 from service.reward_service import RewardService
+from service.user_service import UserService
 
 LOGGER = logging.getLogger()
 LOGGER.setLevel(logging.INFO)
@@ -24,7 +25,8 @@ slack_events_adapter = SlackEventAdapter(
 )
 
 # Initialize the services
-message_service = MessageService()
+user_service = UserService()
+message_service = MessageService(user_service)
 reward_service = RewardService()
 
 

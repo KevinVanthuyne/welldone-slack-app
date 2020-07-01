@@ -4,6 +4,7 @@ from slack import WebClient
 from slack.errors import SlackApiError
 
 from model.message import Message
+from service.user_service import UserService
 
 
 class MessageService():
@@ -11,9 +12,10 @@ class MessageService():
 
     KEYWORD = ":bacon:"
 
-    def __init__(self):
+    def __init__(self, user_service: UserService):
         """ Initializes the MessageService with logger and a Slack WebClient """
-        self.logger = logging.getLogger(__name__)
+        self.logger = logging.getLogger()
+        self.user_service = user_service
         self.slack_web_client = WebClient(token=os.getenv('SLACK_BOT_TOKEN'))
 
     def has_valid_channel_type(self, message: Message):
@@ -66,13 +68,14 @@ class MessageService():
             )
 
             channel_id = open_response["channel"]["id"]
-            message_response = self.slack_web_client.chat_postMessage(
+            user = self.user_service.get_user_info(sender)
+            self.slack_web_client.chat_postMessage(
                 channel=channel_id,
                 text="You got a {} from {}. Well done!".format(
-                    self.KEYWORD, sender)
+                    self.KEYWORD, user["real_name"])
             )
 
-            leave_response = self.slack_web_client.conversations_close(
+            self.slack_web_client.conversations_close(
                 channel=channel_id
             )
             self.logger.info(
