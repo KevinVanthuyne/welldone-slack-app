@@ -30,8 +30,16 @@ class RewardDao():
             self.logger.error("Couldn't save reward to database: {}".format(e))
             return False
 
-    def todays_given_rewards_count(self, user_id: str):
+    def todays_given_rewards(self, user_id: str):
         """ Counts how many rewards the user has given today """
+        try:
+            with self._create_connection() as connection:
+                cursor = connection.cursor()
+                cursor.execute(Queries.COUNT_REWARDS_TODAY.format(user_id))
+                return cursor.fetchone()[0]
+        except Error as e:
+            self.logger.error(
+                "Couldn't retrieve given awards from database: {}".format(e))
 
     def _create_database(self):
         """ Create the database if there is none and its tables to be able to 

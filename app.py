@@ -47,9 +47,14 @@ def _handle_message(payload):
         return
 
     tagged_users = message_service.get_tagged_users(message)
+    # TODO: reward all tagged users up to the max allowed
+
+    if not reward_service.can_give_reward(tagged_users[0]):
+        return
+
     reward = Reward(message.user, tagged_users[0], datetime.now())
 
-    if (reward_service.give_reward(reward)):
+    if reward_service.give_reward(reward):
         success = message_service.send_reward_notification(
             message.user, tagged_users[0]
         )

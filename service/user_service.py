@@ -6,6 +6,8 @@ from slack.errors import SlackApiError
 
 class UserService():
 
+    # TODO: users can give 5 rewards per day
+
     def __init__(self):
         """ Initializes the MessageService with logger and a Slack WebClient """
         self.logger = logging.getLogger()
