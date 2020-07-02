@@ -4,6 +4,7 @@ from flask import Flask
 from slackeventsapi import SlackEventAdapter
 from dotenv import load_dotenv
 from datetime import datetime
+import pprint
 
 from model.message import Message
 from model.reward import Reward
@@ -36,28 +37,37 @@ def on_message(payload):
 
 
 def _handle_message(payload):
+    # TODO: filter out channel_join messages and others
+    # TODO: handle response: https://api.slack.com/events-api#responding_to_events
+    pp = pprint.PrettyPrinter(indent=4)
+    pp.pprint(payload)
     event = payload["event"]
     message = Message(event["channel_type"], event["user"],
                       event["text"], event["blocks"])
 
+    # message should be sent in a public or private channel
     if not message_service.has_valid_channel_type(message):
         return
 
+    # message should contain the reward keyword/emoji
     if not message_service.contains_keyword(message):
         return
 
-    tagged_users = message_service.get_tagged_users(message)
-    # TODO: reward all tagged users up to the max allowed
+    tagged_users = message_service.get_tagged_users(
+        message)  # TODO: filter out bot itself
+    print(tagged_users)
 
-    if not reward_service.can_give_reward(tagged_users[0]):
-        return
+    for tagged_user in tagged_users:
+        # if the user giving rewards has reached the daily limit, stop giving rewards
+        if not reward_service.can_give_reward(message.user):
+            break
 
-    reward = Reward(message.user, tagged_users[0], datetime.now())
-
-    if reward_service.give_reward(reward):
-        success = message_service.send_reward_notification(
-            message.user, tagged_users[0]
-        )
+        # otherwise give the reward and send a notification to the receiver
+        reward = Reward(message.user, tagged_user, datetime.now())
+        if reward_service.give_reward(reward):
+            message_service.send_reward_notification(
+                message.user, tagged_users[0]
+            )
 
 
 if __name__ == "__main__":
