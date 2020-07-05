@@ -54,9 +54,7 @@ def _handle_message(payload):
     if not message_service.contains_keyword(message):
         return
 
-    tagged_users = message_service.get_tagged_users(
-        message)  # TODO: filter out bot itself
-    print(tagged_users)
+    tagged_users = message_service.get_tagged_users(message)
 
     for tagged_user in tagged_users:
         # if the user giving rewards has reached the daily limit, stop giving rewards
