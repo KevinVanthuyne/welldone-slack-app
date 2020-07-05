@@ -1,9 +1,10 @@
 import os
 import logging
-from flask import Flask
+from flask import Flask, Response
 from slackeventsapi import SlackEventAdapter
 from dotenv import load_dotenv
 from datetime import datetime
+from threading import Thread
 import pprint
 
 from model.message import Message
@@ -33,12 +34,16 @@ reward_service = RewardService()
 
 @slack_events_adapter.on("message")
 def on_message(payload):
-    _handle_message(payload)
+    # TODO: authentication/verification
+
+    handler_thread = Thread(target=_handle_message,
+                            args=(payload,), daemon=True)
+    handler_thread.start()
+    return Response("Message received.", status=200)
 
 
 def _handle_message(payload):
     # TODO: filter out channel_join messages and others
-    # TODO: handle response: https://api.slack.com/events-api#responding_to_events
     pp = pprint.PrettyPrinter(indent=4)
     pp.pprint(payload)
     event = payload["event"]
