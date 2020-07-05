@@ -1,6 +1,6 @@
 import os
 import logging
-from flask import Flask, Response
+from flask import Flask, Response, request
 from slackeventsapi import SlackEventAdapter
 from dotenv import load_dotenv
 from datetime import datetime
@@ -41,6 +41,7 @@ def on_message(payload):
 
 
 def _handle_message(payload):
+    _pretty_print(payload)
     # try to extract a message from the payload and check if it was successful
     message = message_service.extract_message(payload)
     if not message:
@@ -67,6 +68,14 @@ def _handle_message(payload):
             message_service.send_reward_notification(
                 message.user, tagged_users[0]
             )
+
+
+@app.route('/slack/command/welldone', methods=['POST'])
+def on_command():
+    # TODO: check signing secret for auth
+    _pretty_print(request.form)
+
+    return Response("Command received", 200)
 
 
 def _pretty_print(obj):

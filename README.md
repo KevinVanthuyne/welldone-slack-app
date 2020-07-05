@@ -12,4 +12,6 @@ Run `python3 app.py` to start the Flask server that gets called by Slack when ne
 
 Download [ngrok](https://ngrok.com/) and run it with `.\ngrok.exe http <flask-port>` (the default Flask port is 3000). After ngrok is started copy the https link.
 
-Go to the app's configuration page on https://api.slack.com/apps/, click "Event Subscriptions" and change the "Request URL" to the ngrok URL with `/slack/events` appended.
+Go to the app's configuration page on https://api.slack.com/apps/ to the URL's to the current ngrok URL:
+- Click "Event Subscriptions" and change the "Request URL" to the ngrok URL with `/slack/events` appended.
+- Click "Slash Commands", edit the "/welldone" command and change the url to the ngrok URL with `slack/command/welldone` appended.
