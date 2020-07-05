@@ -18,6 +18,22 @@ class MessageService():
         self.user_service = user_service
         self.slack_web_client = WebClient(token=os.getenv('SLACK_BOT_TOKEN'))
 
+    def extract_message(self, payload):
+        """ Extract a message object from the payload object that gets sent by
+            Slack. Returns a Message object if it was successful, None if it 
+            wasn't.
+        """
+        # if payload doesn't contain "event" key stop handling message
+        if not "event" in payload:
+            return None
+        event = payload["event"]
+
+        # if event doesn't contain necessary keys stop handling message
+        if not event.keys() >= {"channel_type", "user", "text", "blocks"}:
+            return
+        return Message(event["channel_type"], event["user"],
+                       event["text"], event["blocks"])
+
     def has_valid_channel_type(self, message: Message):
         """ Checks if a message was sent in a public or private channel """
         return message.channel_type == "channel" or message.channel_type == "group"

@@ -41,16 +41,10 @@ def on_message(payload):
 
 
 def _handle_message(payload):
-    # if payload doesn't contain "event" key stop handling message
-    if not "event" in payload:
+    # try to extract a message from the payload and check if it was successful
+    message = message_service.extract_message(payload)
+    if not message:
         return
-    event = payload["event"]
-
-    # if event doesn't contain necessary keys stop handling message
-    if not event.keys() >= {"channel_type", "user", "text", "blocks"}:
-        return
-    message = Message(event["channel_type"], event["user"],
-                      event["text"], event["blocks"])
 
     # message should be sent in a public or private channel
     if not message_service.has_valid_channel_type(message):
