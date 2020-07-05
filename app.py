@@ -34,8 +34,6 @@ reward_service = RewardService()
 
 @slack_events_adapter.on("message")
 def on_message(payload):
-    # TODO: authentication/verification
-
     handler_thread = Thread(target=_handle_message,
                             args=(payload,), daemon=True)
     handler_thread.start()
@@ -43,10 +41,14 @@ def on_message(payload):
 
 
 def _handle_message(payload):
-    # TODO: filter out channel_join messages and others
-    pp = pprint.PrettyPrinter(indent=4)
-    pp.pprint(payload)
+    # if payload doesn't contain "event" key stop handling message
+    if not "event" in payload:
+        return
     event = payload["event"]
+
+    # if event doesn't contain necessary keys stop handling message
+    if not event.keys() >= {"channel_type", "user", "text", "blocks"}:
+        return
     message = Message(event["channel_type"], event["user"],
                       event["text"], event["blocks"])
 
@@ -73,6 +75,11 @@ def _handle_message(payload):
             message_service.send_reward_notification(
                 message.user, tagged_users[0]
             )
+
+
+def _pretty_print(obj):
+    pp = pprint.PrettyPrinter(indent=2)
+    pp.pprint(obj)
 
 
 if __name__ == "__main__":
