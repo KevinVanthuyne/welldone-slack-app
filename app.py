@@ -13,6 +13,7 @@ from service.message_service import MessageService
 from service.reward_service import RewardService
 from service.user_service import UserService
 from service.command_service import CommandService
+from service.scoreboard_blocks_service import ScoreboardBlocksService
 
 LOGGER = logging.getLogger()
 LOGGER.setLevel(logging.INFO)
@@ -32,6 +33,8 @@ user_service = UserService()
 message_service = MessageService(user_service)
 reward_service = RewardService()
 command_service = CommandService()
+scoreboard_blocks_service = ScoreboardBlocksService(
+    message_service.KEYWORD, reward_service)
 
 
 @slack_events_adapter.on("message")
@@ -46,9 +49,11 @@ def on_message(payload):
 def on_command():
     # TODO: check signing secret for auth
 
-    _handle_command(request.form)
+    response = _handle_command(request.form)
 
-    return Response("Command received", 200)
+    if not response:
+        return Response("Invalid command argument! Valid arguments are: `scoreboard`", 200)
+    return Response(response, 200)
 
 
 def _handle_message(payload):
@@ -84,9 +89,13 @@ def _handle_message(payload):
 def _handle_command(payload):
     _pretty_print(payload)
 
+    # command should be valid
     command = command_service.extract_command(payload)
     if not command:
-        return
+        return False
+
+    payload = scoreboard_blocks_service.get_message_payload()
+    # TODO send payload in channel that the command was posted in
 
 
 def _pretty_print(obj):
