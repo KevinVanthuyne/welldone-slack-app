@@ -12,6 +12,7 @@ from model.reward import Reward
 from service.message_service import MessageService
 from service.reward_service import RewardService
 from service.user_service import UserService
+from service.command_service import CommandService
 
 LOGGER = logging.getLogger()
 LOGGER.setLevel(logging.INFO)
@@ -30,6 +31,7 @@ slack_events_adapter = SlackEventAdapter(
 user_service = UserService()
 message_service = MessageService(user_service)
 reward_service = RewardService()
+command_service = CommandService()
 
 
 @slack_events_adapter.on("message")
@@ -38,6 +40,15 @@ def on_message(payload):
                             args=(payload,), daemon=True)
     handler_thread.start()
     return Response("Message received.", status=200)
+
+
+@app.route('/slack/command/welldone', methods=['POST'])
+def on_command():
+    # TODO: check signing secret for auth
+
+    _handle_command(request.form)
+
+    return Response("Command received", 200)
 
 
 def _handle_message(payload):
@@ -70,12 +81,12 @@ def _handle_message(payload):
             )
 
 
-@app.route('/slack/command/welldone', methods=['POST'])
-def on_command():
-    # TODO: check signing secret for auth
-    _pretty_print(request.form)
+def _handle_command(payload):
+    _pretty_print(payload)
 
-    return Response("Command received", 200)
+    command = command_service.extract_command(payload)
+    if not command:
+        return
 
 
 def _pretty_print(obj):
